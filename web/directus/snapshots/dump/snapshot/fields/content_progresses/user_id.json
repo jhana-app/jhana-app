@@ -1,0 +1,23 @@
+{
+  "collection": "content_progresses",
+  "field": "user_id",
+  "type": "bigInteger",
+  "meta": null,
+  "schema": {
+    "name": "user_id",
+    "table": "content_progresses",
+    "data_type": "bigint",
+    "default_value": null,
+    "max_length": null,
+    "numeric_precision": 64,
+    "numeric_scale": 0,
+    "is_nullable": false,
+    "is_unique": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": "users",
+    "foreign_key_column": "id"
+  }
+}

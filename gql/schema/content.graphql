@@ -1,0 +1,16 @@
+extend type Content {
+    singleEpisode: ContentEpisode
+    episodesList: [ContentEpisode!]!
+}
+
+input ResetContentProgressInput {
+    confirm: Boolean!
+}
+
+input DownloadContentInput {
+    finished: Boolean!
+}
+
+type DownloadContentResult {
+    success: Boolean!
+}

@@ -1,0 +1,6 @@
+type LessonTechnique {
+    lessonId: ID!
+    techniqueId: ID!
+    technique: Technique!
+    order: Int!
+}

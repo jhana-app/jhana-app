@@ -1,0 +1,15 @@
+{
+  "collection": "unit_techniques",
+  "field": "technique_id",
+  "related_collection": "techniques",
+  "meta": null,
+  "schema": {
+    "table": "unit_techniques",
+    "column": "technique_id",
+    "foreign_key_table": "techniques",
+    "foreign_key_column": "id",
+    "constraint_name": "unit_techniques_techniques_technique",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

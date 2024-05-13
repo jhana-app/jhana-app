@@ -1,0 +1,15 @@
+{
+  "collection": "user_progresses",
+  "field": "user_id",
+  "related_collection": "users",
+  "meta": null,
+  "schema": {
+    "table": "user_progresses",
+    "column": "user_id",
+    "foreign_key_table": "users",
+    "foreign_key_column": "id",
+    "constraint_name": "user_progresses_users_user",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

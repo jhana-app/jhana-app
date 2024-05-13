@@ -1,0 +1,33 @@
+# base compose file with services like postgres and mailhog
+version: "3"
+
+volumes:
+  local_postgres_data: {}
+  # local_postgres_data_backups: {}
+  # local_redis_data: {}
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: local_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      # - local_postgres_data_backups:/backups
+    env_file:
+      - ../../.envs/.local/.postgres.env
+    ports:
+      - "25432:5432"
+
+  # redis:
+  #   image: redis:latest
+  #   container_name: local_redis
+  #   volumes:
+  #     - local_redis_data:/data
+  #   ports:
+  #     - "26379:6379"
+
+  # mailhog:
+  #   image: mailhog/mailhog:v1.0.1
+  #   container_name: local_mailhog
+  #   ports:
+  #     - "28025:8025"

@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+includes:
+  tool: "./ToolTasks.yaml"
+
+vars:
+  EXTENSIONS_DIR: "./web/directus/extensions"
+
+tasks:
+  create:
+    desc: "Create new directus extension"
+    dir: "extensions"
+    deps: [tool:node]
+    interactive: true
+    cmds:
+      - npx create-directus-extension@latest
+
+  build-all:
+    desc: "Build all directus extensions"
+    deps: [tool:node]
+    vars:
+      EXTENSIONS:
+        sh: "cd {{.EXTENSIONS_DIR}} && ls -d *"
+    cmds:
+      - for: { var: EXTENSIONS }
+        task: build-{{.ITEM}}
+
+  build-*:
+    vars:
+      EXTENSION: "{{index .MATCH 0}}"
+    desc: "Build directus extension"
+    dir: "{{.EXTENSIONS_DIR}}/{{.EXTENSION}}"
+    label: "build-{{.EXTENSION}}" # important for checksum
+    silent: true
+    sources:
+      - "./**"
+      - exclude: "./node_modules/**"
+      - exclude: "./dist/**"
+    generates:
+      - "./dist/**"
+    deps: [tool:node, "install-{{.EXTENSION}}"]
+    cmds:
+      - npm run build
+
+  dev-*:
+    vars:
+      EXTENSION: "{{index .MATCH 0}}"
+    desc: "Start development server for directus extension"
+    dir: "{{.EXTENSIONS_DIR}}/{{.EXTENSION}}"
+    deps: [tool:node, "install-{{.EXTENSION}}"]
+    cmds:
+      - npm run dev
+
+  install-*:
+    vars:
+      EXTENSION: "{{index .MATCH 0}}"
+    desc: "Install directus extension dependencies"
+    internal: true
+    silent: true
+    dir: "{{.EXTENSIONS_DIR}}/{{.EXTENSION}}"
+    label: "install-{{.EXTENSION}}" # important for checksum
+    sources:
+      - "./package.json"
+      - "./package-lock.json"
+    generates:
+      - "./node_modules/**"
+    deps: [tool:node]
+    cmds:
+      - npm install

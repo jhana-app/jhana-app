@@ -1,0 +1,15 @@
+{
+  "collection": "user_progresses",
+  "field": "course_id",
+  "related_collection": "courses",
+  "meta": null,
+  "schema": {
+    "table": "user_progresses",
+    "column": "course_id",
+    "foreign_key_table": "courses",
+    "foreign_key_column": "id",
+    "constraint_name": "user_progresses_courses_course",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

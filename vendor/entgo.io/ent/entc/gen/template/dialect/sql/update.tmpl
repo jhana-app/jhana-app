@@ -1,0 +1,225 @@
+{{/*
+Copyright 2019-present Facebook Inc. All rights reserved.
+This source code is licensed under the Apache 2.0 license found
+in the LICENSE file in the root directory of this source tree.
+*/}}
+
+{{/* gotype: entgo.io/ent/entc/gen.typeScope */}}
+
+{{/* Additional fields for the builder. */}}
+{{ define "dialect/sql/update/fields" }}
+	{{- with $tmpls := matchTemplate "dialect/sql/update/fields/additional/*" }}
+		{{- range $tmpl := $tmpls }}
+			{{- xtemplate $tmpl $ }}
+		{{- end }}
+	{{- end }}
+{{- end }}
+
+{{ define "dialect/sql/update" }}
+{{ $pkg := $.Scope.Package }}
+{{ $builder := pascal $.Scope.Builder }}
+{{ $receiver := $.Scope.Receiver }}
+{{ $mutation := print $receiver ".mutation" }}
+{{ $one := hasSuffix $builder "One" }}
+{{- $zero := 0 }}{{ if $one }}{{ $zero = "nil" }}{{ end }}
+{{- $ret := "n" }}{{ if eq $ret $receiver }}{{ $ret = "_n" }}{{ end }}{{ if $one }}{{ $ret = "_node" }}{{ end }}
+
+{{- /* Allow adding methods to the update-builder by ent extensions or user templates.*/}}
+{{- with $tmpls := matchTemplate "dialect/sql/update/additional/*" }}
+	{{- range $tmpl := $tmpls }}
+		{{- xtemplate $tmpl $ }}
+	{{- end }}
+{{- end }}
+
+func ({{ $receiver }} *{{ $builder }}) sqlSave(ctx context.Context) ({{ $ret }} {{ if $one }}*{{ $.Name }}{{ else }}int{{ end }}, err error) {
+	{{- if $.HasUpdateCheckers }}
+		if err := {{ $receiver }}.check(); err != nil {
+			return {{ $ret }}, err
+		}
+	{{- end }}
+	_spec := sqlgraph.NewUpdateSpec({{ $.Package }}.Table, {{ $.Package }}.Columns,
+		{{- if $.HasOneFieldID -}}
+			sqlgraph.NewFieldSpec({{ $.Package }}.{{ $.ID.Constant }}, field.{{ $.ID.Type.ConstName }})
+		{{- else -}}
+			{{- range $id := $.EdgeSchema.ID -}}
+				sqlgraph.NewFieldSpec({{ $.Package }}.{{ $id.Constant }}, field.{{ $id.Type.ConstName }}),
+			{{- end -}}
+		{{- end }})
+	{{- if $one }}
+		{{- if $.HasOneFieldID }}
+			id, ok := {{ $mutation }}.{{ $.ID.MutationGet }}()
+			if !ok {
+				return {{ $zero }}, &ValidationError{Name: "{{ $.ID.Name }}", err: errors.New(`{{ $pkg }}: missing "{{ $.Name }}.{{ $.ID.Name }}" for update`)}
+			}
+			_spec.Node.ID.Value = id
+			if fields := {{ $receiver }}.fields; len(fields) > 0 {
+				_spec.Node.Columns = make([]string, 0, len(fields))
+				_spec.Node.Columns = append(_spec.Node.Columns, {{ $.Package }}.{{ $.ID.Constant }})
+				for _, f := range fields {
+					if !{{ $.Package }}.ValidColumn(f) {
+						return nil, &ValidationError{Name: f, err: fmt.Errorf("{{ $pkg }}: invalid field %q for query", f)}
+					}
+					if f != {{ $.Package }}.{{ $.ID.Constant }} {
+						_spec.Node.Columns = append(_spec.Node.Columns, f)
+					}
+				}
+			}
+		{{- else }}{{/* Composite ID. */}}
+			{{- range $i, $id := $.EdgeSchema.ID }}
+				if id, ok := {{ $mutation }}.{{ $id.MutationGet }}(); !ok {
+					return {{ $zero }}, &ValidationError{Name: "{{ $id.Name }}", err: errors.New(`{{ $pkg }}: missing "{{ $.Name }}.{{ $id.Name }}" for update`)}
+				} else {
+					_spec.Node.CompositeID[{{ $i }}].Value = id
+				}
+			{{- end }}
+			if fields := {{ $receiver }}.fields; len(fields) > 0 {
+				_spec.Node.Columns = make([]string, len(fields))
+				for i, f := range fields {
+					if !{{ $.Package }}.ValidColumn(f) {
+						return nil, &ValidationError{Name: f, err: fmt.Errorf("{{ $pkg }}: invalid field %q for query", f)}
+					}
+					_spec.Node.Columns[i] = f
+				}
+			}
+		{{- end }}
+	{{- end }}
+	if ps := {{ $mutation }}.predicates; len(ps) > 0 {
+		_spec.Predicate = func(selector *sql.Selector) {
+			for i := range ps {
+				ps[i](selector)
+			}
+		}
+	}
+	{{- range $f := $.MutationFields }}
+			{{- if or (not $f.Immutable) $f.UpdateDefault }}
+				if value, ok := {{ $mutation }}.{{ $f.MutationGet }}(); ok {
+					{{- if $f.HasValueScanner }}
+						vv, err := {{ $f.ValueFunc }}(value)
+						if err != nil {
+							return {{ $zero }}, err
+						}
+						_spec.SetField({{ $.Package }}.{{ $f.Constant }}, field.{{ $f.Type.ConstName }}, vv)
+					{{- else }}
+						_spec.SetField({{ $.Package }}.{{ $f.Constant }}, field.{{ $f.Type.ConstName }}, value)
+					{{- end }}
+				}
+				{{- if $f.SupportsMutationAdd }}
+					if value, ok := {{ $mutation }}.{{ $f.MutationAdded }}(); ok {
+						{{- if $f.HasValueScanner }}
+							vv, err := {{ $f.ValueFunc }}(value)
+							if err != nil {
+								return {{ $zero }}, err
+							}
+							_spec.AddField({{ $.Package }}.{{ $f.Constant }}, field.{{ $f.Type.ConstName }}, vv)
+						{{- else }}
+							_spec.AddField({{ $.Package }}.{{ $f.Constant }}, field.{{ $f.Type.ConstName }}, value)
+						{{- end }}
+					}
+				{{- end }}
+				{{- if $f.SupportsMutationAppend }}
+					if value, ok := {{ $mutation }}.{{ $f.MutationAppended }}(); ok {
+						_spec.AddModifier(func(u *sql.UpdateBuilder) {
+							sqljson.Append(u, {{ $.Package }}.{{ $f.Constant }}, value)
+						})
+					}
+				{{- end }}
+			{{- end }}
+			{{- if $f.Optional }}
+				if {{ $mutation }}.{{ $f.StructField }}Cleared() {
+					_spec.ClearField({{ $.Package }}.{{ $f.Constant }}, field.{{ $f.Type.ConstName }})
+				}
+			{{- end }}
+	{{- end }}
+	{{- range $e := $.EdgesWithID }}
+		{{- if $e.Immutable }}
+			{{- /* Skip to the next one as immutable edges cannot be updated. */}}
+			{{- continue }}
+		{{- end }}
+		if {{ $mutation }}.{{ $e.MutationCleared }}() {
+			{{- with extend $ "Edge" $e }}
+				{{ template "dialect/sql/defedge" . }}
+			{{- end }}
+			_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+		}
+		{{- if not $e.Unique }}
+			if nodes := {{ $mutation }}.Removed{{ $e.StructField }}IDs(); len(nodes) > 0 && !{{ $mutation }}.{{ $e.MutationCleared }}() {
+				{{- with extend $ "Edge" $e "Nodes" true "Zero" $zero }}
+					{{ template "dialect/sql/defedge" . }}
+				{{- end }}
+				_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+			}
+		{{- end }}
+		if nodes := {{ $mutation }}.{{ $e.StructField }}IDs(); len(nodes) > 0 {
+			{{- with extend $ "Edge" $e "Nodes" true "Zero" $zero }}
+				{{ template "dialect/sql/defedge" . }}
+			{{- end }}
+			_spec.Edges.Add = append(_spec.Edges.Add, edge)
+		}
+	{{- end }}
+	{{- /* Allow mutating the sqlgraph.UpdateSpec by ent extensions or user templates.*/}}
+	{{- with $tmpls := matchTemplate "dialect/sql/update/spec/*" }}
+		{{- range $tmpl := $tmpls }}
+			{{- xtemplate $tmpl $ }}
+		{{- end }}
+	{{- end }}
+	{{- if $one }}
+		{{ $ret }} = &{{ $.Name }}{config: {{ $receiver }}.config}
+		_spec.Assign = {{ $ret }}.assignValues
+		_spec.ScanValues = {{ $ret }}.scanValues
+	{{- end }}
+	{{- if $one }}
+		if err = sqlgraph.UpdateNode(ctx, {{ $receiver }}.driver, _spec); err != nil {
+	{{- else }}
+		if {{ $ret }}, err = sqlgraph.UpdateNodes(ctx, {{ $receiver }}.driver, _spec); err != nil {
+	{{- end }}
+		if _, ok := err.(*sqlgraph.NotFoundError); ok {
+			err = &NotFoundError{ {{ $.Package }}.Label}
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{msg: err.Error(), wrap: err}
+		}
+		return {{ $zero }}, err
+	}
+	{{ $mutation }}.done = true
+	return {{ $ret }}, nil
+}
+{{ end }}
+
+{{ define "dialect/sql/defedge" }}
+	{{- $e := $.Scope.Edge -}}
+	{{- $receiver := $.Scope.Receiver -}}
+	edge := &sqlgraph.EdgeSpec{
+		Rel: sqlgraph.{{ $e.Rel.Type }},
+		Inverse: {{ $e.IsInverse }},
+		Table: {{ $.Package }}.{{ $e.TableConstant }},
+		Columns: {{ if $e.M2M }}{{ $.Package }}.{{ $e.PKConstant }}{{ else }}[]string{ {{ $.Package }}.{{ $e.ColumnConstant }} }{{ end }},
+		Bidi: {{ $e.Bidi }},
+		Target: &sqlgraph.EdgeTarget{
+			IDSpec: sqlgraph.NewFieldSpec({{ $e.Type.Package }}.{{ $e.Type.ID.Constant }}, field.{{ $e.Type.ID.Type.ConstName }}),
+		},
+	}
+	{{- /* Allow mutating the sqlgraph.EdgeSpec by ent extensions or user templates.*/}}
+	{{- with $tmpls := matchTemplate "dialect/sql/defedge/spec/*" }}
+		{{- range $tmpl := $tmpls }}
+			{{- xtemplate $tmpl $ }}
+		{{- end }}
+	{{- end }}
+	{{- with $.Scope.Nodes }}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+	{{- end }}
+	{{- with $e.Through }}
+		{{- if .HasDefault }}
+			createE := &{{ .CreateName }}{config: {{ $receiver }}.config, mutation: new{{ .MutationName }}({{ $receiver }}.config, OpCreate)}
+			{{- /* Skip error handling here as this check was already handled. */}}
+			{{ if or .NumHooks .NumPolicy }}_ = {{ end }}createE.defaults()
+			_, specE := createE.createSpec()
+			edge.Target.Fields = specE.Fields
+			{{- if and .HasOneFieldID .ID.Default }}
+				if specE.ID.Value != nil {
+					edge.Target.Fields = append(edge.Target.Fields, specE.ID)
+				}
+			{{- end }}
+		{{- end }}
+	{{- end }}
+{{- end }}

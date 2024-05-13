@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  COMPOSE_FILE: '{{ .COMPOSE_FILE | default "etc/compose/local.yml" }}'
+
+includes:
+  tool:
+    taskfile: "./ToolTasks.yaml"
+    internal: true
+  env:
+    taskfile: "./EnvsTasks.yaml"
+    internal: true
+    dir: "../../" # XXX(slava): fix for https://github.com/go-task/task/issues/903
+
+tasks:
+  up:
+    desc: Start backend and infra
+    deps: [tool:docker, env:local]
+    vars:
+      # don't start firebase emulator if it's not configured
+      FIREBASE_EMULATOR_SCALE: "{{if .FIREBASE_AUTH_EMULATOR_HOST }}1{{else}}0{{end}}"
+    cmds:
+      - echo "Starting backend and infra and show logs"
+      - docker-compose -f {{.COMPOSE_FILE}} up {{.CLI_ARGS}} --scale firebase-emulator={{.FIREBASE_EMULATOR_SCALE}}
+
+  up-infra:
+    desc: Start docker compose infra only
+    deps: [tool:docker]
+    cmds:
+      - echo "Starting docker compose"
+      - docker-compose -f {{.COMPOSE_FILE}} up -d --scale backend=0 {{.CLI_ARGS}}
+
+  status:
+    desc: Show docker compose status
+    deps: [tool:docker]
+    cmds:
+      - echo "Showing docker compose status"
+      - docker-compose -f {{.COMPOSE_FILE}} ps
+
+  down:
+    desc: Stop docker compose
+    deps: [tool:docker]
+    cmds:
+      - echo "Stopping docker compose"
+      - docker-compose -f {{.COMPOSE_FILE}} down
+
+  build:
+    desc: Build docker compose
+    deps: [tool:docker]
+    cmds:
+      - echo "Building docker compose"
+      - docker-compose -f {{.COMPOSE_FILE}} build
+
+  rebuild:
+    desc: Rebuild docker compose
+    cmds:
+      - task: down
+      - task: build
+      - task: up
+
+  run:
+    desc: Run command in backend container
+    cmds:
+      - task: run-backend
+
+  run-*:
+    vars:
+      CLI_ARGS: '{{ .CLI_ARGS | default .COMMAND | default "sh" }}'
+      CONTAINER: "{{index .MATCH 0}}"
+    desc: Run command in {{.CONTAINER}} container
+    deps: [tool:docker]
+    silent: true
+    cmds:
+      - docker-compose -f {{.COMPOSE_FILE}} exec {{.CONTAINER}} {{.CLI_ARGS}}
+
+  # internal

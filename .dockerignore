@@ -1,0 +1,10 @@
+.git
+.idea
+.DS_Store
+# don't add flutter build directory to the docker context
+app
+.task
+.vscode
+lotus.db
+web/directus
+bin

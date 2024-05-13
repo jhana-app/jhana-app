@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+dotenv:
+  - ".env.local"
+
+includes:
+  migrate: ./etc/tasks/MigrateTasks.yaml
+  go: ./etc/tasks/GoTasks.yaml
+  run: ./etc/tasks/RunTasks.yaml
+  env: ./etc/tasks/EnvsTasks.yaml
+  compose: ./etc/tasks/ComposeTasks.yaml
+  app: ./etc/tasks/AppTasks.yaml
+
+  "directus:schema": ./etc/tasks/SchemaTasks.yaml
+  "directus:extension": ./etc/tasks/ExtensionTasks.yaml
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true

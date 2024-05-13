@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  go: { deps: [task: has-go] }
+  golangci-lint: { deps: [task: has-golangci-lint] }
+  docker: { deps: [task: has-docker] }
+  node: { deps: [task: has-node] }
+  flutter: { deps: [task: has-flutter] }
+  firebase:
+    deps:
+      - task: has-firebase
+        vars: { BREW_PACKAGE: "firebase-cli" }
+
+  atlas:
+    deps:
+      - task: has-atlas
+        vars: { BREW_PACKAGE: "ariga/tap/atlas" }
+
+  has-*:
+    vars:
+      COMMAND: "{{index .MATCH 0}}"
+    desc: "Check if {{.COMMAND}} is installed"
+    internal: true
+    cmds:
+      - echo "{{.COMMAND}} does not exist."
+      - task: install-{{.COMMAND}}
+    silent: true
+    status:
+      - command -v {{.COMMAND}} > /dev/null
+
+  install-*:
+    vars:
+      COMMAND: "{{index .MATCH 0}}"
+      BREW_PACKAGE: "{{.BREW_PACKAGE | default .COMMAND}}"
+    desc: "Install {{.COMMAND}}"
+    internal: true
+    cmds:
+      - task: install-brew-{{.COMMAND}}-{{.BREW_PACKAGE}}
+    silent: true
+
+  install-brew:
+    platforms: ["darwin"]
+    requires:
+      vars:
+        - BREW_PACKAGE
+    internal: true
+    desc: "Install {{.BREW_PACKAGE}}"
+
+    cmds:
+      - echo "Install {{.BREW_PACKAGE}}"
+      - brew install {{.BREW_PACKAGE}}
+    silent: true

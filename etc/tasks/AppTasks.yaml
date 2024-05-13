@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+includes:
+  tool:
+    taskfile: "./ToolTasks.yaml"
+    internal: true
+
+  firebase:
+    taskfile: "./FirebaseTasks.yaml"
+    dir: "../../" # XXX(slava): fix for https://github.com/go-task/task/issues/903
+
+tasks:
+  generate-graphql:
+    desc: Generate graphql files
+    deps: [generate-graphql-clean, tool:flutter]
+    dir: "./app/"
+    cmds:
+      - echo "Generate graphql files"
+      - for f in ../gql/schema/*.graphql; do cat $f >> lib/api/graphql/schema.graphql; done
+      - dart run build_runner build
+
+  generate-graphql-clean:
+    desc: Clean generated graphql files
+    dir: "./app/"
+    cmds:
+      - rm -f lib/api/graphql/schema.graphql

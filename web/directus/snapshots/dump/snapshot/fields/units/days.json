@@ -1,0 +1,42 @@
+{
+  "collection": "units",
+  "field": "days",
+  "type": "bigInteger",
+  "meta": {
+    "collection": "units",
+    "conditions": null,
+    "display": null,
+    "display_options": null,
+    "field": "days",
+    "group": null,
+    "hidden": false,
+    "interface": null,
+    "note": null,
+    "options": null,
+    "readonly": true,
+    "required": false,
+    "sort": null,
+    "special": null,
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  },
+  "schema": {
+    "name": "days",
+    "table": "units",
+    "data_type": "bigint",
+    "default_value": null,
+    "max_length": null,
+    "numeric_precision": 64,
+    "numeric_scale": 0,
+    "is_nullable": false,
+    "is_unique": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": null,
+    "foreign_key_column": null
+  }
+}

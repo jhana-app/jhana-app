@@ -1,0 +1,20 @@
+# Refer to https://gqlgen.com/config/ for detailed gqlgen.yml documentation
+
+schema:
+    - 'schema/*.graphql'
+
+resolver:
+    layout: follow-schema
+    dir: .
+
+autobind:
+    - github.com/99designs/gqlgen/graphql/introspection
+    - github.com/jhana-app/jhana-app/ent
+
+models:
+    ID:
+        model: github.com/jhana-app/jhana-app/ent/gqlid.Base64ID
+    Node:
+        model: github.com/jhana-app/jhana-app/ent.Noder
+    LessonType:
+        model: github.com/jhana-app/jhana-app/ent.LessonType

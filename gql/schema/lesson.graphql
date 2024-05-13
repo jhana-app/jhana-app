@@ -1,0 +1,42 @@
+extend type Lesson {
+    isLast: Boolean!
+    isNext: Boolean!
+    progress: Int!
+    finishedAt: Time @goField(name: "FinishedAt", forceResolver: false)
+
+    techniques: [Technique!]! # deprecated
+    lessonTechniques: [LessonTechnique!]!
+    audios: [LessonAudio!]!
+}
+
+extend type Query {
+    activeLessons: [Lesson!]!
+}
+
+input FinishLessonInput {
+    datetime: Time! @goField(name: "DateTime", forceResolver: false)
+    duration: Int!
+    note: String!
+}
+
+type FinishLessonResult {
+    lesson: Lesson!
+    nextLesson: Lesson
+    journalRecord: JournalRecord!
+}
+
+input SaveLessonProgressInput {
+    progress: Int!
+}
+
+input ResetLessonProgressInput {
+    confirm: Boolean!
+}
+
+input DownloadLessonInput {
+    finished: Boolean!
+}
+
+type DownloadLessonResult {
+    success: Boolean!
+}

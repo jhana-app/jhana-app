@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+includes:
+  compose:
+    taskfile: "./ComposeTasks.yaml"
+    internal: true
+    dir: "../../" # XXX(slava): fix for https://github.com/go-task/task/issues/903
+
+tasks:
+  model:
+    desc: "Generate types for the current directus data model"
+    cmds:
+      - task: compose:run
+        vars:
+          COMMAND: "npx directus models snapshot ./snapshots/model.d.ts"
+
+  # directus-sync
+
+  pull:
+    desc: "Pull the latest schema from the docker instance"
+    interactive: true
+    cmds:
+      - echo "Pulling the latest schema from the running instance"
+      - task: directus-sync-pull
+
+  diff:
+    desc: "Diff the local schema with the remote schema"
+    interactive: true
+    cmds:
+      - echo "Diffing the local schema with the remote schema"
+      - task: directus-sync-diff
+
+  push:
+    desc: "Apply the schema diff to the remote instance"
+    interactive: true
+    cmds:
+      - echo "Applying the schema diff to the remote instance"
+      - task: directus-sync-push
+
+  directus-sync-*:
+    desc: "Use directus-sync tool to sync schema between files and database"
+    internal: true
+    vars:
+      COMMAND: "{{index .MATCH 0}}"
+    interactive: true
+    silent: true
+    cmds:
+      - task: compose:run-directus
+        vars:
+          # it's important to use single quotes here to avoid host shell expansion
+          COMMAND: >
+            /bin/sh -c 'npx directus-sync {{.COMMAND}}
+            --dump-path ./snapshots/dump/
+            --directus-url http://$HOST:$PORT
+            --directus-email $ADMIN_EMAIL
+            --directus-password $ADMIN_PASSWORD
+            {{.CLI_ARGS}}'

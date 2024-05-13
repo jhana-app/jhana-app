@@ -1,0 +1,21 @@
+extend type Unit {
+    lessonsTotal: Int!
+    lessonsCompleted: Int!
+    isActive: Boolean!
+    nextUnit: Unit
+
+    techniques: [Technique!]! # deprecated
+    unitTechniques: [UnitTechnique!]!
+}
+
+input ResetUnitProgressInput {
+    confirm: Boolean!
+}
+
+input DownloadUnitInput {
+    finished: Boolean!
+}
+
+type DownloadUnitResult {
+    success: Boolean!
+}

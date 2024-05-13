@@ -1,0 +1,47 @@
+{
+  "collection": "units",
+  "field": "course_id",
+  "type": "bigInteger",
+  "meta": {
+    "collection": "units",
+    "conditions": null,
+    "display": "related-values",
+    "display_options": {
+      "template": "{{title}}"
+    },
+    "field": "course_id",
+    "group": null,
+    "hidden": false,
+    "interface": "select-dropdown-m2o",
+    "note": null,
+    "options": {
+      "enableCreate": false,
+      "template": "{{title}}"
+    },
+    "readonly": false,
+    "required": false,
+    "sort": null,
+    "special": null,
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  },
+  "schema": {
+    "name": "course_id",
+    "table": "units",
+    "data_type": "bigint",
+    "default_value": null,
+    "max_length": null,
+    "numeric_precision": 64,
+    "numeric_scale": 0,
+    "is_nullable": false,
+    "is_unique": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": "courses",
+    "foreign_key_column": "id"
+  }
+}

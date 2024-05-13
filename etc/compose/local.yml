@@ -1,0 +1,63 @@
+version: "3"
+name: jhana-app
+include:
+  - infra.yml
+
+services:
+  server:
+    build:
+      context: ../../
+      dockerfile: ./etc/docker/server/Dockerfile
+    depends_on:
+      - postgres
+    env_file:
+      - ../../.envs/.local/.server.env
+    restart: always
+
+  directus:
+    build:
+      context: ../docker/directus
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    volumes:
+      - ../../web/directus/uploads:/directus/uploads
+      - ../../web/directus/extensions:/directus/extensions
+      - ../../web/directus/snapshots:/directus/snapshots
+      - ../../web/directus/templates:/directus/templates
+      - ../../web/directus/migrations:/directus/migrations
+
+    env_file:
+      - ../../.envs/.local/.directus.env
+
+  firebase-emulator:
+    build:
+      context: ../docker/firebase-emulator
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 0
+    ports:
+      - "4000:4000"
+      - "9099:9099"
+    volumes:
+      - firebase_emulator_data:/firebase
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+      - directus
+    volumes:
+      - type: bind
+        source: ./nginx/default.conf
+        target: /etc/nginx/conf.d/default.conf
+      - type: bind
+        source: ./nginx/html
+        target: /usr/share/nginx/html
+    # XXX(slava): when we decide to use default.template and envsubst.
+    # https://github.com/docker-library/docs/issues/496#issuecomment-313065989
+
+volumes:
+  firebase_emulator_data: {}

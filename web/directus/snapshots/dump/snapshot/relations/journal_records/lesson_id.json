@@ -1,0 +1,15 @@
+{
+  "collection": "journal_records",
+  "field": "lesson_id",
+  "related_collection": "lessons",
+  "meta": null,
+  "schema": {
+    "table": "journal_records",
+    "column": "lesson_id",
+    "foreign_key_table": "lessons",
+    "foreign_key_column": "id",
+    "constraint_name": "journal_records_lessons_lesson",
+    "on_update": "NO ACTION",
+    "on_delete": "SET NULL"
+  }
+}

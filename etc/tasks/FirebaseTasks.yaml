@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+includes:
+  tool:
+    taskfile: "./ToolTasks.yaml"
+    internal: true
+
+vars:
+  PROJECT_DIR: "./app"
+
+tasks:
+  emulator:
+    desc: "Start the Firebase emulator suite"
+    deps: [tool:firebase]
+    dir: "{{.PROJECT_DIR}}"
+    cmds:
+      - firebase emulators:start --only auth {{.CLI_ARGS}}
+
+  login:
+    desc: "Log into Firebase using your Google account"
+    deps: [tool:firebase]
+    env:
+      FIREBASE_AUTH_EMULATOR_HOST: localhost:9099
+    cmds:
+      - firebase login

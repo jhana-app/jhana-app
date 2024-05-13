@@ -1,0 +1,19 @@
+extend type JournalRecord {
+    unitColor: String
+}
+
+input CreateJournalRecordInput {
+    datetime: Time @goField(name: "DateTime", forceResolver: false)
+    duration: Int!
+    note: String!
+}
+
+input UpdateJournalRecordInput {
+    datetime: Time @goField(name: "DateTime", forceResolver: false)
+    duration: Int
+    note: String
+}
+
+extend type Query {
+    weekStats: [JournalRecord!]!
+}

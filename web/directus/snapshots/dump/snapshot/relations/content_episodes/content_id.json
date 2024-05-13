@@ -1,0 +1,15 @@
+{
+  "collection": "content_episodes",
+  "field": "content_id",
+  "related_collection": "contents",
+  "meta": null,
+  "schema": {
+    "table": "content_episodes",
+    "column": "content_id",
+    "foreign_key_table": "contents",
+    "foreign_key_column": "id",
+    "constraint_name": "content_episodes_contents_content",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

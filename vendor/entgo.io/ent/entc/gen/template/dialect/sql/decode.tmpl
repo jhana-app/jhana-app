@@ -1,0 +1,157 @@
+{{/*
+Copyright 2019-present Facebook Inc. All rights reserved.
+This source code is licensed under the Apache 2.0 license found
+in the LICENSE file in the root directory of this source tree.
+*/}}
+
+{{/* gotype: entgo.io/ent/entc/gen.typeScope */}}
+
+{{ define "dialect/sql/decode/one" }}
+{{ $receiver := $.Receiver }}
+
+{{ $ctypes := dict }}
+{{ if $.HasOneFieldID }}
+	{{ $idscantype := $.ID.NewScanType }}
+	{{ $ctypes = set $ctypes $idscantype (list $.ID.Constant) }}
+{{ end }}
+{{ range $f := $.Fields }}
+	{{- if $f.HasValueScanner }}
+		{{- continue }}
+	{{- end }}
+	{{ $names := list }}
+	{{ if hasKey $ctypes $f.NewScanType }}
+		{{ $names = get $ctypes $f.NewScanType }}
+	{{ end }}
+	{{ $names = append $names $f.Constant }}
+	{{ $ctypes = set $ctypes $f.NewScanType $names }}
+{{ end }}
+
+// scanValues returns the types for scanning values from sql.Rows.
+func (*{{ $.Name }}) scanValues(columns []string) ([]any, error) {
+	values := make([]any, len(columns))
+	for i := range columns {
+		switch columns[i] {
+			{{- range $type, $columns := $ctypes }}
+				case {{ range $i, $c := $columns }}{{ if ne $i 0 }},{{ end }}{{ $.Package }}.{{ $c }}{{ end }}:
+					values[i] = {{ $type }}
+			{{- end }}
+			{{- range $f := $.Fields }}
+				{{- if $f.HasValueScanner }}
+					case {{ $.Package }}.{{ $f.Constant }}:
+						values[i] = {{ $f.ScanValueFunc }}()
+				{{- end }}
+			{{- end }}
+			{{- range $i, $fk := $.UnexportedForeignKeys }}
+				{{- $f := $fk.Field }}
+				case {{ $.Package }}.ForeignKeys[{{ $i }}]: // {{ $f.Name }}
+					values[i] = {{ if not $f.UserDefined }}new(sql.NullInt64){{ else }}{{ $f.NewScanType }}{{ end }}
+			{{- end }}
+			default:
+				{{- /* In case of unknown column that was added by a modifier, predicate, etc., fallback to any. */}}
+				values[i] = new(sql.UnknownType)
+		}
+	}
+	return values, nil
+}
+
+// assignValues assigns the values that were returned from sql.Rows (after scanning)
+// to the {{ $.Name }} fields.
+func ({{ $receiver }} *{{ $.Name }}) assignValues(columns []string, values []any) error {
+	if m, n := len(values), len(columns); m < n {
+		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
+	}
+	{{- $idx := "i" }}{{ if eq $idx $receiver }}{{ $idx = "j" }}{{ end }}
+	for {{ $idx }} := range columns {
+		switch columns[{{ $idx }}] {
+		{{- if $.HasOneFieldID }}
+			case {{ $.Package }}.{{ $.ID.Constant }}:
+				{{- if or $.ID.IsString $.ID.IsBytes $.ID.HasGoType }}
+					{{- with extend $ "Idx" $idx "Field" $.ID "Rec" $receiver }}
+						{{ template "dialect/sql/decode/field" . }}
+					{{- end }}
+				{{- else }}
+					value, ok := values[{{ $idx }}].(*sql.NullInt64)
+					if !ok {
+						return fmt.Errorf("unexpected type %T for field id", value)
+					}
+					{{ $receiver }}.ID = {{ $.ID.Type }}(value.Int64)
+				{{- end }}
+		{{- end }}
+		{{- range  $f := $.Fields }}
+			case {{ $.Package }}.{{ $f.Constant }}:
+				{{- with extend $ "Idx" $idx "Field" $f "Rec" $receiver }}
+					{{ template "dialect/sql/decode/field" . }}
+				{{- end }}
+		{{- end }}
+		{{- range $i, $fk := $.UnexportedForeignKeys }}
+			{{- $f := $fk.Field }}
+			case {{ if $fk.UserDefined }}{{ $.Package }}.{{ $.ID.Constant }}{{ else }}{{ $.Package }}.ForeignKeys[{{ $i }}]{{ end }}:
+				{{- if or $fk.UserDefined (and $f.UserDefined (or $f.IsString $f.IsBytes $f.HasGoType)) }}
+					{{- with extend $ "Idx" $idx "Field" $f "Rec" $receiver "StructField" $fk.StructField }}
+						{{ template "dialect/sql/decode/field" . }}
+					{{- end }}
+				{{- else }}
+					if value, ok := values[{{ $idx }}].(*sql.NullInt64); !ok {
+						return fmt.Errorf("unexpected type %T for edge-field {{ $f.Name}}", value)
+					} else if value.Valid {
+						{{ $receiver }}.{{ $fk.StructField }} = new({{ $f.Type }})
+						{{ if and $f.Nillable (not $f.Type.Nillable) }}*{{ end }}{{ $receiver }}.{{ $fk.StructField }} = {{ $f.Type }}(value.Int64)
+					}
+				{{- end }}
+		{{- end }}
+		default:
+			{{- /* In case of no match, allow getting this value by its name. */}}
+			{{ $receiver }}.selectValues.Set(columns[{{ $idx }}], values[{{ $idx }}])
+		}
+	}
+	return nil
+}
+
+// {{ $.ValueName }} returns the ent.Value that was dynamically selected and assigned to the {{ $.Name }}.
+// This includes values selected through modifiers, order, etc.
+func ({{ $receiver }} *{{ $.Name }}) {{ $.ValueName }}(name string) (ent.Value, error) {
+	return {{ $receiver }}.selectValues.Get(name)
+}
+{{ end }}
+
+{{ define "dialect/sql/decode/field" }}
+	{{- $i := $.Scope.Idx -}}
+	{{- $f := $.Scope.Field -}}
+	{{- $ret := $.Scope.Rec -}}
+	{{- $field := $f.StructField }}{{ with $.Scope.StructField }}{{ $field = . }}{{ end -}}
+	{{- if $f.HasValueScanner -}}
+		if value, err := {{ $f.FromValueFunc }}(values[{{ $i }}]); err != nil {
+			return err
+		} else {
+			{{ $ret }}.{{ $field }} = value
+		}
+	{{- else if $f.IsJSON -}}
+		if value, ok := values[{{ $i }}].(*{{ $f.ScanType }}); !ok {
+			return fmt.Errorf("unexpected type %T for field {{ $f.Name }}", values[{{ $i }}])
+		} else if value != nil && len(*value) > 0 {
+			if err := json.Unmarshal(*value, &{{ $ret }}.{{ $field }}); err != nil {
+				return fmt.Errorf("unmarshal field {{ $f.Name }}: %w", err)
+			}
+		}
+	{{- else }}
+		{{- $scantype := $f.ScanType -}}
+		if value, ok := values[{{ $i }}].(*{{ $scantype }}); !ok {
+			return fmt.Errorf("unexpected type %T for field {{ $f.Name }}", values[{{ $i }}])
+		{{- if hasPrefix $scantype "sql.Null" }}
+			} else if value.Valid {
+				{{- if $f.NillableValue }}
+					{{ $ret }}.{{ $field }} = new({{ $f.Type }})
+					*{{ $ret }}.{{ $field }} = {{ $f.ScanTypeField "value" }}
+				{{- else }}
+					{{ $ret }}.{{ $field }} = {{ $f.ScanTypeField "value" }}
+				{{- end }}
+		{{- else }}
+			} else if value != nil {
+				{{ $ret }}.{{ $field }} = {{ if and (not $f.Nillable) (not $f.Type.RType.IsPtr) }}*{{ end }}value
+		{{- end }}
+		}
+	{{- end }}
+{{- end }}
+
+{{ define "dialect/sql/decode/many" }}
+{{ end }}

@@ -1,0 +1,14 @@
+input MeditationsStatsInput {
+    userTimezone: String!
+}
+
+type MeditationsStats {
+    hoursTotal: Int!
+    sessionsTotal: Int!
+    currentStrike: Int!
+    lastMeditationDate: String
+}
+
+extend type Query {
+    meditationsStats(input: MeditationsStatsInput!): MeditationsStats!
+}

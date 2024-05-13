@@ -1,0 +1,35 @@
+input SignInWithEmailAndPasswordInput {
+  email: String!
+  password: String!
+}
+
+input SignUpWithEmailAndPasswordInput {
+  email: String!
+  password: String!
+  name: String
+}
+
+type SignInWithEmailAndPasswordResult {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+type SignUpWithEmailAndPasswordResult {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+input SignOutInput {
+  refreshToken: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+type RefreshTokenResult {
+  accessToken: String!
+  refreshToken: String!
+}

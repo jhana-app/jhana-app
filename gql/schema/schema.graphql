@@ -1,0 +1,41 @@
+type Mutation {
+  signInWithEmailAndPassword(
+    input: SignInWithEmailAndPasswordInput!
+  ): SignInWithEmailAndPasswordResult!
+  signUpWithEmailAndPassword(
+    input: SignUpWithEmailAndPasswordInput!
+  ): SignUpWithEmailAndPasswordResult!
+  refreshToken(input: RefreshTokenInput!): RefreshTokenResult!
+  signOut(input: SignOutInput!): Boolean!
+
+  downloadUnit(id: ID!, input: DownloadUnitInput!): DownloadUnitResult!
+  resetUnitProgress(id: ID!, input: ResetUnitProgressInput!): Unit!
+  saveLessonProgress(id: ID!, input: SaveLessonProgressInput!): Boolean!
+  downloadLesson(id: ID!, input: DownloadLessonInput!): DownloadLessonResult!
+  resetLessonProgress(id: ID!, input: ResetLessonProgressInput!): Lesson!
+  finishLesson(id: ID!, input: FinishLessonInput!): FinishLessonResult!
+  downloadContent(id: ID!, input: DownloadContentInput!): DownloadContentResult!
+  resetContentProgress(id: ID!, input: ResetContentProgressInput!): Content!
+  saveContentEpisodeProgress(
+    id: ID!
+    input: SaveContentEpisodeProgressInput!
+  ): Boolean!
+  downloadContentEpisode(
+    id: ID!
+    input: DownloadContentEpisodeInput!
+  ): DownloadContentEpisodeResult!
+  resetContentEpisodeProgress(
+    id: ID!
+    input: ResetContentEpisodeProgressInput!
+  ): ContentEpisode!
+  finishContentEpisode(
+    id: ID!
+    input: FinishContentEpisodeInput!
+  ): FinishContentEpisodeResult!
+  createJournalRecord(input: CreateJournalRecordInput!): JournalRecord!
+  updateJournalRecord(id: ID!, input: UpdateJournalRecordInput!): JournalRecord!
+  deleteJournalRecord(id: ID!): JournalRecord!
+}
+
+# XXX(slava): entgql has a bug in which it removes scalar Time from ent.graphql if it's already there.
+# scalar Time

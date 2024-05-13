@@ -1,0 +1,6 @@
+type UnitTechnique {
+    unitId: ID!
+    techniqueId: ID!
+    technique: Technique!
+    position: Int!
+}

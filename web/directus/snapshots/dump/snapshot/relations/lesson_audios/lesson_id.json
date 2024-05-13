@@ -1,0 +1,15 @@
+{
+  "collection": "lesson_audios",
+  "field": "lesson_id",
+  "related_collection": "lessons",
+  "meta": null,
+  "schema": {
+    "table": "lesson_audios",
+    "column": "lesson_id",
+    "foreign_key_table": "lessons",
+    "foreign_key_column": "id",
+    "constraint_name": "lesson_audios_lessons_lesson",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

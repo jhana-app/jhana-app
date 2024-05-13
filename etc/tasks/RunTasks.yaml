@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+includes:
+  tool:
+    taskfile: "./ToolTasks.yaml"
+    internal: true
+
+tasks:
+  api:
+    desc: "Run the server in development mode"
+    cmds:
+      - go run ./cmd/main.go api {{.CLI_ARGS}}
+    silent: false
+    deps: [tool:go]

@@ -1,0 +1,7 @@
+{
+  "collection": "user_progresses",
+  "meta": null,
+  "schema": {
+    "name": "user_progresses"
+  }
+}

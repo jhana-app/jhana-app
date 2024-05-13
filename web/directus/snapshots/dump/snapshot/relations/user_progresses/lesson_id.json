@@ -1,0 +1,15 @@
+{
+  "collection": "user_progresses",
+  "field": "lesson_id",
+  "related_collection": "lessons",
+  "meta": null,
+  "schema": {
+    "table": "user_progresses",
+    "column": "lesson_id",
+    "foreign_key_table": "lessons",
+    "foreign_key_column": "id",
+    "constraint_name": "user_progresses_lessons_lesson",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

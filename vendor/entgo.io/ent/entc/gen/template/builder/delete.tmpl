@@ -1,0 +1,98 @@
+{{/*
+Copyright 2019-present Facebook Inc. All rights reserved.
+This source code is licensed under the Apache 2.0 license found
+in the LICENSE file in the root directory of this source tree.
+*/}}
+
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "delete" }}
+{{ $pkg := base $.Config.Package }}
+
+{{ template "header" $ }}
+
+{{ template "import" $ }}
+
+import (
+	{{ $.PackageAlias }} "{{ $.Config.Package }}/{{ $.PackageDir }}"
+)
+
+{{ $builder := $.DeleteName }}
+{{ $receiver := $.DeleteReceiver }}
+{{ $mutation := print $receiver ".mutation" }}
+
+// {{ $builder }} is the builder for deleting a {{ $.Name }} entity.
+type {{ $builder }} struct {
+	config
+	hooks      []Hook
+	mutation   *{{ $.MutationName }}
+}
+
+// Where appends a list predicates to the {{ $builder }} builder.
+func ({{ $receiver }} *{{ $builder }}) Where(ps ...predicate.{{ $.Name }}) *{{ $builder }} {
+	{{ $mutation }}.Where(ps...)
+	return {{ $receiver }}
+}
+
+// Exec executes the deletion query and returns how many vertices were deleted.
+func ({{ $receiver }} *{{ $builder }}) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, {{ $receiver }}.{{ $.Storage }}Exec, {{ $mutation }}, {{ $receiver }}.hooks)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func ({{ $receiver }} *{{ $builder }}) ExecX(ctx context.Context) int {
+	{{- $n := "n" }}{{ if eq $receiver $n }}{{ $n = "_n" }}{{ end }}
+	{{ $n }}, err := {{ $receiver }}.Exec(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return {{ $n }}
+}
+
+{{ with extend $ "Receiver" $receiver "Builder" $builder }}
+	{{ $tmpl := printf "dialect/%s/delete" $.Storage }}
+	{{ xtemplate $tmpl . }}
+{{ end }}
+
+{{- /* Support adding delete methods by global templates. */}}
+{{- with $tmpls := matchTemplate "delete/additional/*" }}
+	{{- range $tmpl := $tmpls }}
+		{{ xtemplate $tmpl $ }}
+	{{- end }}
+{{- end }}
+
+{{ $onebuilder := $.DeleteOneName }}
+{{ $oneReceiver := $.DeleteOneReceiver }}
+
+// {{ $onebuilder }} is the builder for deleting a single {{ $.Name }} entity.
+type {{ $onebuilder }} struct {
+	{{ $receiver }} *{{ $builder }}
+}
+
+// Where appends a list predicates to the {{ $builder }} builder.
+func ({{ $oneReceiver }} *{{ $onebuilder }}) Where(ps ...predicate.{{ $.Name }}) *{{ $onebuilder }} {
+	{{ $oneReceiver }}.{{ $mutation }}.Where(ps...)
+	return {{ $oneReceiver }}
+}
+
+// Exec executes the deletion query.
+func ({{ $oneReceiver }} *{{ $onebuilder }}) Exec(ctx context.Context) error {
+	n, err := {{ $oneReceiver }}.{{ $receiver }}.Exec(ctx)
+	switch {
+	case err != nil:
+		return err
+	case n == 0:
+		return &NotFoundError{ {{ $.Package }}.Label}
+	default:
+		return nil
+	}
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func ({{ $oneReceiver }} *{{ $onebuilder }}) ExecX(ctx context.Context) {
+	if err := {{ $oneReceiver }}.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+{{ end }}

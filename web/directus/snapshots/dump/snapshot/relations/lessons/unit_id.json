@@ -1,0 +1,15 @@
+{
+  "collection": "lessons",
+  "field": "unit_id",
+  "related_collection": "units",
+  "meta": null,
+  "schema": {
+    "table": "lessons",
+    "column": "unit_id",
+    "foreign_key_table": "units",
+    "foreign_key_column": "id",
+    "constraint_name": "lessons_units_unit",
+    "on_update": "NO ACTION",
+    "on_delete": "NO ACTION"
+  }
+}

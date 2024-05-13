@@ -1,0 +1,26 @@
+{
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "search.exclude": {
+        "package-lock.json": true
+    },
+    // prettier
+    "editor.formatOnSave": true,
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go"
+    },
+    "dart.lineLength": 100,
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "Dart-Code.dart-code",
+        // Draw a guide line at 120 characters, where Dart's formatting will wrap code.
+        "editor.rulers": [100]
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "go.lintTool": "golangci-lint",
+    "go.lintFlags": ["--fast"],
+    "editor.codeActionsOnSave": {
+        "quickfix.insertSemicolon": "explicit"
+    }
+}

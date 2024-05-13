@@ -1,0 +1,34 @@
+extend type ContentEpisode {
+    progress: Int!
+    finishedAt: Time @goField(name: "FinishedAt", forceResolver: false)
+}
+
+extend type Query {
+    activeEpisodes: [ContentEpisode!]!
+    activeEpisode(contentId: ID!): ContentEpisode
+}
+
+input FinishContentEpisodeInput {
+    datetime: Time! @goField(name: "DateTime", forceResolver: false)
+}
+
+type FinishContentEpisodeResult {
+    episode: ContentEpisode!
+    nextEpisode: ContentEpisode
+}
+
+input SaveContentEpisodeProgressInput {
+    progress: Int!
+}
+
+input ResetContentEpisodeProgressInput {
+    confirm: Boolean!
+}
+
+input DownloadContentEpisodeInput {
+    finished: Boolean!
+}
+
+type DownloadContentEpisodeResult {
+    success: Boolean!
+}

@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  ATLAS_LOCAL_ENV:
+    - local_postgres
+    - local_sqlite
+
+includes:
+  tool:
+    taskfile: "./ToolTasks.yaml"
+    internal: true
+
+tasks:
+  default:
+    desc: "Run atlas"
+    deps: [tool:atlas]
+    cmds:
+      - atlas {{.CLI_ARGS}}
+
+  schema-diff:
+    desc: "Generate a schema diff for all the local environments"
+    deps: [tool:atlas]
+    cmds:
+      - for:
+          var: ATLAS_LOCAL_ENV
+        cmd: |
+          atlas migrate diff --env {{.ITEM}} {{.CLI_ARGS}}
+
+  update-hash:
+    desc: "Update the hash of the schema diff for all the local environments"
+    deps: [tool:atlas]
+    cmds:
+      - for:
+          var: ATLAS_LOCAL_ENV
+        cmd: |
+          atlas migrate hash --env {{.ITEM}} {{.CLI_ARGS}}
+
+  status:
+    desc: "Show the status of the current environments"
+    deps: [tool:atlas]
+    requires:
+      vars: [ATLAS_ENV]
+    cmds:
+      - atlas migrate status --env {{.ATLAS_ENV}} {{.CLI_ARGS}}
+
+  apply:
+    desc: "Apply the schema diff to the current environments"
+    deps: [tool:atlas]
+    requires:
+      vars: [ATLAS_ENV]
+    cmds:
+      - atlas migrate apply --env {{.ATLAS_ENV}} {{.CLI_ARGS}}

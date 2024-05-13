@@ -1,0 +1,28 @@
+{
+  "collection": "courses",
+  "meta": {
+    "accountability": "all",
+    "archive_app_filter": true,
+    "archive_field": null,
+    "archive_value": "false",
+    "collapse": "open",
+    "collection": "courses",
+    "color": null,
+    "display_template": null,
+    "group": null,
+    "hidden": false,
+    "icon": null,
+    "item_duplication_fields": null,
+    "note": null,
+    "preview_url": null,
+    "singleton": false,
+    "sort": null,
+    "sort_field": null,
+    "translations": null,
+    "unarchive_value": "true",
+    "versioning": false
+  },
+  "schema": {
+    "name": "courses"
+  }
+}
