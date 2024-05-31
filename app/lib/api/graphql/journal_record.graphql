@@ -1,0 +1,53 @@
+fragment JournalRecord on JournalRecord {
+  id
+  lessonID
+  datetime
+  duration
+  note
+  unitColor
+  createdat
+}
+
+query FetchJournalRecords($where: JournalRecordWhereInput, $orderBy: JournalRecordOrder, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  journalRecords(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+    edges {
+      node {
+        ...JournalRecord
+      }
+    }
+    totalCount
+  }
+}
+
+query FetchJournalRecord($journalRecordId: ID!) {
+  node(id: $journalRecordId) {
+    id
+    ... on JournalRecord {
+      ...JournalRecord
+    }
+  }
+}
+
+query FetchWeekStats {
+  weekStats {
+    ...JournalRecord
+  }
+}
+
+mutation CreateJournalRecord($input: CreateJournalRecordInput!) {
+  record: createJournalRecord(input: $input) {
+    ...JournalRecord
+  }
+}
+
+mutation UpdateJournalRecord($id: ID!, $input: UpdateJournalRecordInput!) {
+  record: updateJournalRecord(id: $id, input: $input) {
+    ...JournalRecord
+  }
+}
+
+mutation DeleteJournalRecord($id: ID!) {
+  record: deleteJournalRecord(id: $id) {
+    ...JournalRecord
+  }
+}

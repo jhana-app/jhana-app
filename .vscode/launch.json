@@ -9,12 +9,6 @@
       "cwd": "app",
       "request": "launch",
       "type": "dart"
-      // "args": [
-      //   "--dart-define",
-      //   "LOGIN_METHOD=firebase",
-      //   "--dart-define",
-      //   "FIREBASE_EMULATOR=true"
-      // ]
     },
     {
       "name": "app (firebase emulalator)",

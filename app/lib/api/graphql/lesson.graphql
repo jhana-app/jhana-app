@@ -1,0 +1,68 @@
+fragment Lesson on Lesson {
+  id
+  unitID
+  type
+  coverimage
+  title
+  description
+  order
+  isLast
+  isNext
+  progress
+  finishedAt
+  audios {
+    ...LessonAudio
+  }
+}
+
+fragment LessonFull on Lesson {
+  ...Lesson
+  unit {
+    ...Unit
+  }
+  lessonTechniques {
+    ...LessonTechnique
+  }
+}
+
+query FetchLesson($lessonId: ID!) {
+  node(id: $lessonId) {
+    id
+    ... on Lesson {
+      ...LessonFull
+    }
+  }
+}
+
+query FetchActiveLessons() {
+  activeLessons {
+    ...LessonFull
+  }
+}
+
+mutation SaveLessonProgress($id: ID!, $input: SaveLessonProgressInput!) {
+  success: saveLessonProgress(id: $id, input: $input)
+}
+
+mutation ResetLessonProgress($id: ID!, $input: ResetLessonProgressInput!) {
+  resetLessonProgress(id: $id, input: $input) {
+    ...LessonFull
+  }
+}
+
+mutation FinishLesson($id: ID!, $input: FinishLessonInput!) {
+  finishLesson(id: $id, input: $input) {
+    lesson {
+      ...LessonFull
+    }
+    journalRecord {
+      ...JournalRecord
+    }
+  }
+}
+
+mutation DownloadLesson($id: ID!, $input: DownloadLessonInput!) {
+  downloadLesson(id: $id, input: $input) {
+    success
+  }
+}

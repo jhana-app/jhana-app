@@ -18,6 +18,11 @@ task
 
 We use Docker to run infrastructure and sever locally in docker compose.
 
+Please install docker:
+
+1. Docker Desktop: https://docs.docker.com/desktop/
+2. Or use colima, container runtimes on macOS (and Linux) with minimal setup - https://github.com/abiosoft/colima
+
 Run server and required infrastructure (postgres, directus) locally in docker:
 
 ```bash
@@ -148,3 +153,5 @@ dart pub global activate flutterfire_cli
 Different environments and configs for firebase
 https://www.reddit.com/r/flutterhelp/comments/188g20c/does_firebase_optionsdart_completely_replace/
 
+Support for multiple environments:
+https://medium.com/capyba/setting-flutter-environments-the-capybas-way-cb7d085b3b74

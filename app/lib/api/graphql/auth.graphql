@@ -1,0 +1,30 @@
+mutation SignInWithEmailAndPassword($input: SignInWithEmailAndPasswordInput!) {
+  signInWithEmailAndPassword(input: $input) {
+    accessToken
+    refreshToken
+    user {
+      ...User
+    }
+  }
+}
+
+mutation SignUpWithEmailAndPassword($input: SignUpWithEmailAndPasswordInput!) {
+  signInWithEmailAndPassword(input: $input) {
+    accessToken
+    refreshToken
+    user {
+      ...User
+    }
+  }
+}
+
+mutation SignOut($input: SignOutInput!) {
+  signOut(input: $input)
+}
+
+mutation RefreshToken($input: RefreshTokenInput!) {
+  refreshToken(input: $input) {
+    accessToken
+    refreshToken
+  }
+}

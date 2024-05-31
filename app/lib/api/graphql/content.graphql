@@ -1,0 +1,58 @@
+fragment Content on Content {
+  id
+  type
+  iconimage
+  coverimage
+  title
+  subtitle
+  description
+  source
+  sourceurl
+  licence
+  licenceurl
+  ishidden
+  order
+  episodescount
+  singleEpisode {
+    ...ContentEpisode
+  }
+}
+
+fragment ContentFull on Content {
+  ...Content
+  episodesList {
+    ...ContentEpisode
+  }
+}
+
+query FetchContents {
+  contents {
+    edges {
+      node {
+        ...Content
+      }
+    }
+    totalCount
+  }
+}
+
+query FetchContent($contentId: ID!) {
+  node(id: $contentId) {
+    id
+    ... on Content {
+      ...ContentFull
+    }
+  }
+}
+
+mutation ResetContentProgress($id: ID!, $input: ResetContentProgressInput!) {
+  resetContentProgress(id: $id, input: $input) {
+    ...ContentFull
+  }
+}
+
+mutation DownloadContent($id: ID!, $input: DownloadContentInput!) {
+  downloadContent(id: $id, input: $input) {
+    success
+  }
+}

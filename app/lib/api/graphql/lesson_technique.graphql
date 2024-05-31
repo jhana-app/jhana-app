@@ -1,0 +1,8 @@
+fragment LessonTechnique on LessonTechnique {
+  lessonId
+  techniqueId
+  technique {
+    ...Technique
+  }
+  order
+}

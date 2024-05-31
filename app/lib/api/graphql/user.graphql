@@ -1,0 +1,12 @@
+fragment User on User {
+  id
+  email
+  emailVerified
+  displayname
+}
+
+query FetchUser {
+  me {
+    ...User
+  }
+}

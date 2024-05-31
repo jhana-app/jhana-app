@@ -1,0 +1,5 @@
+fragment LessonAudio on LessonAudio {
+  id
+  audiourl
+  duration
+}

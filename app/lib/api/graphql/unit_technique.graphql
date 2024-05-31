@@ -1,0 +1,8 @@
+fragment UnitTechnique on UnitTechnique {
+  unitId
+  techniqueId
+  technique {
+    ...Technique
+  }
+  position
+}

@@ -1,0 +1,23 @@
+fragment Technique on Technique {
+  id
+  coverimage
+  title
+  subtitle
+  description
+  order
+}
+
+query FetchTechnique($unitId: ID!, $techniqueId: ID!) {
+  unit: node(id: $unitId) {
+    id
+    ... on Unit {
+      ...Unit
+    }
+  }
+  technique: node(id: $techniqueId) {
+    id
+    ... on Technique {
+      ...Technique
+    }
+  }
+}

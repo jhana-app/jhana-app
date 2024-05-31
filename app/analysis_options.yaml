@@ -1,0 +1,102 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  # strong-mode:
+  #   implicit-casts: false
+  #   implicit-dynamic: false
+  exclude:
+    - lib/api/graphql/**
+  errors:
+    always_declare_return_types: warning
+    annotate_overrides: warning
+    avoid_init_to_null: warning
+    camel_case_types: warning
+    empty_constructor_bodies: warning
+    exhaustive_cases: error
+    iterable_contains_unrelated_type: error
+    missing_required_param: error
+    missing_return: error
+    must_be_immutable: error
+    prefer_final_locals: warning
+    prefer_void_to_null: warning
+    sort_unnamed_constructors_first: warning
+    throw_in_finally: warning
+    type_annotate_public_apis: warning
+    type_init_formals: warning
+    unnecessary_await_in_return: warning
+    unnecessary_brace_in_string_interps: warning
+    unnecessary_new: error
+    unused_import: warning
+    unused_local_variable: warning
+    use_full_hex_values_for_flutter_colors: warning
+    use_function_type_syntax_for_parameters: warning
+    use_rethrow_when_possible: warning
+    use_setters_to_change_properties: warning
+    use_string_buffers: warning
+    use_to_and_as_if_applicable: warning
+    valid_regexps: warning
+    always_use_package_imports: warning
+    avoid_relative_lib_imports: warning
+    avoid_void_async: warning
+    prefer_const_literals_to_create_immutables: warning
+    avoid_unused_constructor_parameters: warning
+    prefer_const_constructors: warning
+    prefer_const_constructors_in_immutables: warning
+    prefer_const_declarations: warning
+    prefer_constructors_over_static_methods: warning
+    unnecessary_const: warning
+    use_named_constants: warning
+    library_private_types_in_public_api: ignore #mobx
+
+linter:
+  rules:
+    always_declare_return_types: true
+    always_use_package_imports: true
+    avoid_bool_literals_in_conditional_expressions: true
+    avoid_escaping_inner_quotes: true
+    avoid_private_typedef_functions: true
+    avoid_redundant_argument_values: true
+    avoid_returning_this: true
+    avoid_slow_async_io: true
+    avoid_types_on_closure_parameters: true
+    avoid_unused_constructor_parameters: true
+    avoid_void_async: true
+    cancel_subscriptions: true
+    avoid_single_cascade_in_expression_statements: true
+    directives_ordering: true
+    join_return_with_assignment: true
+    lines_longer_than_80_chars: false
+    literal_only_boolean_expressions: true
+    no_adjacent_strings_in_list: true
+    package_prefixed_library_names: true
+    parameter_assignments: true
+    prefer_asserts_in_initializer_lists: true
+    prefer_constructors_over_static_methods: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_foreach: true
+    prefer_interpolation_to_compose_strings: true
+    prefer_single_quotes: true
+    sort_child_properties_last: true
+    sort_unnamed_constructors_first: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    unnecessary_await_in_return: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_parenthesis: true
+    unnecessary_raw_strings: true
+    unnecessary_statements: true
+    use_build_context_synchronously: true
+    use_named_constants: true
+    use_setters_to_change_properties: true
+    use_string_buffers: true
+    use_to_and_as_if_applicable: true
+    prefer_const_constructors: true
+
+    type_annotate_public_apis: false
+    constant_identifier_names: false
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    prefer_final_fields: false
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options

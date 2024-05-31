@@ -1,0 +1,85 @@
+fragment ContentEpisode on ContentEpisode {
+  id
+  contentID
+  type
+  title
+  subtitle
+  description
+  duration
+  progress
+  finishedAt
+  streamurl
+  downloadurl
+  source
+  sourceurl
+  licence
+  licenceurl
+  ishidden
+  order
+}
+
+fragment ContentEpisodeFull on ContentEpisode {
+  ...ContentEpisode
+  content {
+    ...Content
+  }
+}
+
+query FetchContentEpisodes {
+  contentEpisodes {
+    edges {
+      node {
+        ...ContentEpisode
+      }
+    }
+    totalCount
+  }
+}
+
+query FetchContentEpisode($contentEpisodeId: ID!) {
+  node(id: $contentEpisodeId) {
+    id
+    ... on ContentEpisode {
+      ...ContentEpisodeFull
+    }
+  }
+}
+
+query FetchActiveEpisodes() {
+  activeEpisodes {
+    ...ContentEpisodeFull
+  }
+}
+
+query FetchActiveEpisode($contentId: ID!) {
+  activeEpisode(contentId: $contentId) {
+    ...ContentEpisodeFull
+  }
+}
+
+mutation SaveContentEpisodeProgress($id: ID!, $input: SaveContentEpisodeProgressInput!) {
+  success: saveContentEpisodeProgress(id: $id, input: $input)
+}
+
+mutation ResetContentEpisodeProgress($id: ID!, $input: ResetContentEpisodeProgressInput!) {
+  resetContentEpisodeProgress(id: $id, input: $input) {
+    ...ContentEpisodeFull
+  }
+}
+
+mutation FinishContentEpisode($id: ID!, $input: FinishContentEpisodeInput!) {
+  finishContentEpisode(id: $id, input: $input) {
+    episode {
+      ...ContentEpisodeFull
+    }
+    nextEpisode {
+      ...ContentEpisodeFull
+    }
+  }
+}
+
+mutation DownloadContentEpisode($id: ID!, $input: DownloadContentEpisodeInput!) {
+  downloadContentEpisode(id: $id, input: $input) {
+    success
+  }
+}

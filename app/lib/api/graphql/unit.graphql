@@ -1,0 +1,73 @@
+fragment Unit on Unit {
+  id
+  courseID
+  coverimage
+  title
+  subtitle
+  description
+  mastering
+  days
+  color
+  order
+  lessonsTotal
+  lessonsCompleted
+  isActive
+  course {
+    ...Course
+  }
+}
+
+fragment UnitFull on Unit {
+  ...Unit
+  lessons {
+    edges {
+      node {
+        ...Lesson
+      }
+    }
+  }
+  unitTechniques {
+    ...UnitTechnique
+  }
+  nextUnit {
+    ...Unit
+  }
+}
+
+query FetchCourseUnits($courseId: ID!) {
+  node(id: $courseId) {
+    id
+    ... on Course {
+      ...Course
+      units {
+        edges {
+          node {
+            ...Unit
+          }
+        }
+        totalCount
+      }
+    }
+  }
+}
+
+query FetchUnit($unitId: ID!) {
+  node(id: $unitId) {
+    id
+    ... on Unit {
+      ...UnitFull
+    }
+  }
+}
+
+mutation ResetUnitProgress($id: ID!, $input: ResetUnitProgressInput!) {
+  unit: resetUnitProgress(id: $id, input: $input) {
+    ...UnitFull
+  }
+}
+
+mutation DownloadUnit($id: ID!, $input: DownloadUnitInput!) {
+  downloadUnit(id: $id, input: $input) {
+    success
+  }
+}

@@ -1,0 +1,41 @@
+fragment Course on Course {
+  id
+  coverimage
+  title
+  description
+  color
+  active
+  order
+  isStarted
+}
+
+fragment CourseFull on Course {
+  ...Course
+  units {
+    edges {
+      node {
+        ...Unit
+      }
+    }
+  }
+}
+
+query FetchCourses {
+  courses {
+    edges {
+      node {
+        ...CourseFull
+      }
+    }
+    totalCount
+  }
+}
+
+query FetchCourse($courseId: ID!) {
+  node(id: $courseId) {
+    id
+    ... on Course {
+      ...CourseFull
+    }
+  }
+}

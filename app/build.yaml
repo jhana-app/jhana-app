@@ -1,0 +1,16 @@
+targets:
+  $default:
+    builders:
+      graphql_codegen:
+        options:
+          clients:
+            - graphql
+            - graphql_flutter
+          scalars:
+            Cursor:
+              type: String
+            Time:
+              type: String
+          assetsPath: lib/api/graphql/**
+          # outputDirectory: /lib/api/generated
+          generatedFileHeader: "// GENERATED FILE, DO NOT MODIFY\n"

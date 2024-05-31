@@ -1,0 +1,12 @@
+fragment MeditationsStats on MeditationsStats {
+  hoursTotal
+  sessionsTotal
+  currentStrike
+  lastMeditationDate
+}
+
+query FetchMeditationsStats($userTimezone: String!) {
+  meditationsStats(input: {userTimezone: $userTimezone}) {
+    ...MeditationsStats
+  }
+}
