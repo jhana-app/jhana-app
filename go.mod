@@ -11,7 +11,6 @@ require (
 	github.com/99designs/gqlgen v0.17.46
 	github.com/TheZeroSlave/zapsentry v1.23.0
 	github.com/getsentry/sentry-go v0.27.0
-	github.com/google/tink/go v1.7.0
 	github.com/gtuk/discordwebhook v1.2.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jackc/pgx/v4 v4.18.3

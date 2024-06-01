@@ -137,7 +137,6 @@ func (a *localAuth) SignUpWithEmailAndPassword(ctx context.Context, email string
 	}
 	var displayName string
 	if name == nil || *name == "" {
-
 		emailAddr, parseErr := emailaddress.Parse(email)
 		if parseErr != nil {
 			return nil, fmt.Errorf("failed to parse email: %w", parseErr)

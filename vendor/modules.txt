@@ -208,34 +208,6 @@ github.com/google/s2a-go/internal/v2/remotesigner
 github.com/google/s2a-go/internal/v2/tlsconfigstore
 github.com/google/s2a-go/retry
 github.com/google/s2a-go/stream
-# github.com/google/tink/go v1.7.0
-## explicit; go 1.17
-github.com/google/tink/go/aead
-github.com/google/tink/go/aead/subtle
-github.com/google/tink/go/core/cryptofmt
-github.com/google/tink/go/core/primitiveset
-github.com/google/tink/go/core/registry
-github.com/google/tink/go/internal
-github.com/google/tink/go/internal/aead
-github.com/google/tink/go/internal/internalregistry
-github.com/google/tink/go/internal/monitoringutil
-github.com/google/tink/go/keyset
-github.com/google/tink/go/mac/subtle
-github.com/google/tink/go/monitoring
-github.com/google/tink/go/prf/subtle
-github.com/google/tink/go/proto/aes_ctr_go_proto
-github.com/google/tink/go/proto/aes_ctr_hmac_aead_go_proto
-github.com/google/tink/go/proto/aes_gcm_go_proto
-github.com/google/tink/go/proto/aes_gcm_siv_go_proto
-github.com/google/tink/go/proto/chacha20_poly1305_go_proto
-github.com/google/tink/go/proto/common_go_proto
-github.com/google/tink/go/proto/hmac_go_proto
-github.com/google/tink/go/proto/kms_envelope_go_proto
-github.com/google/tink/go/proto/tink_go_proto
-github.com/google/tink/go/proto/xchacha20_poly1305_go_proto
-github.com/google/tink/go/subtle
-github.com/google/tink/go/subtle/random
-github.com/google/tink/go/tink
 # github.com/google/uuid v1.6.0
 ## explicit
 github.com/google/uuid
@@ -540,8 +512,6 @@ golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
-golang.org/x/crypto/curve25519
-golang.org/x/crypto/curve25519/internal/field
 golang.org/x/crypto/hkdf
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305

@@ -70,7 +70,6 @@ func (a *firebaseAuth) SignInWithEmailAndPassword(ctx context.Context, email str
 func (a *firebaseAuth) SignUpWithEmailAndPassword(ctx context.Context, email string, password string, name *string) (*ent.User, error) {
 	var displayName string
 	if name == nil || *name == "" {
-
 		emailAddr, err := emailaddress.Parse(email)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse email: %w", err)
