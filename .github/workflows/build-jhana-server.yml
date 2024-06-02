@@ -81,3 +81,39 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    # deploy only if the push event is a tag and the tag is v* and the branch is main
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.ref == 'refs/heads/main'
+    needs:
+      - build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "::set-output name=version_tag::${GITHUB_REF/refs\/tags\//}"
+
+      - name: Setup jhana-dev-deployment repository ssh private key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_JHANA_DEV_DEPLOYMENT_DEPLOY_KEY }}
+
+      - name: Push version to jhana-dev-deployment
+        run: |
+          git config --global user.name 'fikabo'
+          git config --global user.email 'github@fikabo.com'
+          git clone --depth 1 git@github.com:fikabo/jhana-dev-deployment.git jhana-dev-deployment
+          cd jhana-dev-deployment
+          git fetch origin
+          git reset --hard origin/master
+          echo ${{ steps.version.outputs.version_tag }} > VERSION
+          git add VERSION
+          git commit -m "Update version to '${{ steps.version.outputs.version_tag }}'"
+          git push
+
+      - name: Clean up
+        if: always()
+        run: rm -rf "$HOME/jhana-dev-deployment"
