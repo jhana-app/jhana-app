@@ -21,7 +21,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,12 +56,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # based on https://docs.docker.com/build/ci/github-actions/cache/#cache-mounts
+      - name: Go Build Cache for Docker
+        uses: actions/cache@v4
+        with:
+          path: go-build-cache
+          key: ${{ runner.os }}-${{ matrix.architecture }}-go-build-cache-${{ hashFiles('**/go.sum') }}
+
+      - name: inject go-build-cache into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2
+        with:
+          cache-source: go-build-cache
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: etc/docker/server/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/${{ matrix.architecture }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
