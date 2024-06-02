@@ -94,7 +94,7 @@ jobs:
 
       - name: Get version
         id: version
-        run: echo "::set-output name=version_tag::${GITHUB_REF/refs\/tags\//}"
+        run: echo "version_tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
 
       - name: Setup jhana-dev-deployment repository ssh private key
         uses: webfactory/ssh-agent@v0.9.0
