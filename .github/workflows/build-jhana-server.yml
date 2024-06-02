@@ -84,8 +84,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    # deploy only if the push event is a tag and the tag is v* and the branch is main
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.ref == 'refs/heads/main'
+    # deploy only if the push event is a tag and the tag is v*
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     needs:
       - build
     steps:
