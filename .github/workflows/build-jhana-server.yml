@@ -12,8 +12,12 @@ on:
 # Build docker image for etc/docker/server as jhana-server and push to the public ghcr.io registry.
 # also take version number from the tag and pass it to the docker image as a tag
 jobs:
+  lint:
+    uses: ./.github/workflows/golangci-lint.yml
   build:
     runs-on: ubuntu-latest
+    needs:
+      - lint
     permissions:
       contents: read
       packages: write
@@ -28,7 +32,6 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            name/app
             ghcr.io/jhana-app/jhana-server
           # generate Docker tags based on the following events/attributes
           tags: |
