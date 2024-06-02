@@ -108,7 +108,7 @@ jobs:
           git clone --depth 1 git@github.com:fikabo/jhana-dev-deployment.git jhana-dev-deployment
           cd jhana-dev-deployment
           git fetch origin
-          git reset --hard origin/master
+          git reset --hard origin/main
           echo ${{ steps.version.outputs.version_tag }} > VERSION
           git add VERSION
           git commit -m "Update version to '${{ steps.version.outputs.version_tag }}'"
